@@ -34,7 +34,7 @@ void	init(t_mlx *mlx, t_p_coords *v)
 	mlx->img_ptr = mlx_new_image(mlx->mlx_ptr, S_WIDTH, S_HEIGHT);
 	mlx->pixs = mlx_get_data_addr(mlx->img_ptr, &mlx->bpp,\
 	&mlx->sline, &mlx->endian);
-	mlx->xpm = mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/alex.xpm", &x, &y);
+	mlx->xpm = mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/wood.xpm", &x, &y);
 	printf("first element of xpm == %d\n", *(int *)mlx->xpm);
 }
 
@@ -51,10 +51,9 @@ void	cast_all_rays(t_p_coords *v, int **map, t_mlx *mlx)
 	int sline;
 	int endian;
 	int i;
-	int d;
+
 
 	i = 0;
-	d = 0;
 	x = 0;
 	mlx->tex[0] = mlx_get_data_addr(mlx->xpm, &bpp, &sline, &endian);
 
@@ -65,28 +64,18 @@ void	cast_all_rays(t_p_coords *v, int **map, t_mlx *mlx)
 		v->rayDir.Y = v->dir.Y + v->plane.Y * cameraX;
 		mapping(v, map, &curSlide, &t);
 		// printf("%d val \n", map[v->map.x][v->map.y]);
-		color = *((int *)mlx->tex[0] + i);//mlx->colors[map[v->map.x][v->map.y] - 1];
+		color = *((int *)mlx->tex[0]);//mlx->colors[map[v->map.x][v->map.y] - 1];
 		// printf("hereman\n");
 
 		if (t.side == 1)
 			color /= 2;
 		drawSlide(x, &curSlide, &t, v, mlx);
 		x++;
-		i++;
-		d++;
+
 	}
 	mlx_put_image_to_window(mlx->mlx_ptr, mlx->win_ptr, mlx->img_ptr, 0, 0);
 }
 
-//void	calc_tex(t_mlx *mlx)
-//{
-
-//}
-
-//int		tex_calc(int y, int x, char *xpm)
-//{
-//	return (0);
-//}
 
 void	tex_calc(t_trigger *t, t_p_coords *v)
 {
@@ -102,31 +91,7 @@ void	tex_calc(t_trigger *t, t_p_coords *v)
 	if (t->side == 1 && v->rayDir.Y	< 0)
 		v->tex.tex_x = 64 - v->tex.tex_x - 1;	
 }
-void	ceiling_tex(int x, t_p_coords *v, t_mlx *mlx)
-{
-	int y;
-	int y_end;
 
-	y = v->tex.start;
-	y_end = v->tex.end;
-	v->tex.distWall = v->d.perpWallDist;
-	v->tex.distPlayer = 0.0;
-	if (y < 0)
-		y = S_HEIGHT;
-	y = y + 1;
-	while (y > S_HEIGHT)
-	{
-		v->tex.currentDist = S_HEIGHT / (2.0 * y - S_HEIGHT);
-		v->tex.weight =(v->tex.currentDist - v->tex.distPlayer) / (v->tex.distWall - v->tex.distPlayer);
-		v->tex.cfloor_x = v->tex.weight * v->tex.floor_x + (1.0 - v->tex.weight) * v->pos.X;
-		v->tex.cfloor_y = v->tex.weight * v->tex.floor_y + (1.0 - v->tex.weight) * v->pos.Y;
-		v->tex.tex_x = (int)(v->tex.cfloor_x * 64) % 64;
-		v->tex.tex_y = (int)(v->tex.cfloor_y * 64) % 64;
-		pxto_win(x, y, *((int *)mlx->tex[0] + 64 * (v->tex.tex_y + v->tex.tex_x)) >> 1 & 8355711, mlx);
-		//pxto_win(x, y, *(int *)mlx->tex[0] + 64 * v->tex.tex_y + v->tex.tex_x, mlx);
-		y--;
-	}
-}
 
 void	floor_tex(int x, t_p_coords *v, t_mlx *mlx)
 {
@@ -139,17 +104,17 @@ void	floor_tex(int x, t_p_coords *v, t_mlx *mlx)
 	v->tex.distPlayer = 0.0;
 	if (y_end < 0)
 		y_end = S_HEIGHT;
-	y = 1 + y_end;
+	y = y_end + 1;
 	while (y < S_HEIGHT)
 	{
 		v->tex.currentDist = S_HEIGHT / (2.0 * y - S_HEIGHT);
-		v->tex.weight =(v->tex.currentDist - v->tex.distPlayer) / (v->tex.distWall - v->tex.distPlayer);
+		v->tex.weight = (v->tex.currentDist - v->tex.distPlayer) / (v->tex.distWall - v->tex.distPlayer);
 		v->tex.cfloor_x = v->tex.weight * v->tex.floor_x + (1.0 - v->tex.weight) * v->pos.X;
 		v->tex.cfloor_y = v->tex.weight * v->tex.floor_y + (1.0 - v->tex.weight) * v->pos.Y;
 		v->tex.tex_x = (int)(v->tex.cfloor_x * 64) % 64;
 		v->tex.tex_y = (int)(v->tex.cfloor_y * 64) % 64;
-		pxto_win(x, y, *((int *)mlx->tex[0] + 64 * (v->tex.tex_y + v->tex.tex_x)) >> 1 & 8355711, mlx);
-		pxto_win(x, y, *(int *)mlx->tex[0] + 64 * v->tex.tex_y + v->tex.tex_x, mlx);
+		pxto_win(x, S_HEIGHT - y, *((int *)mlx->tex[0] + 64 * v->tex.tex_y + v->tex.tex_x), mlx);
+		pxto_win(x, y, *((int *)mlx->tex[0] + 64 * v->tex.tex_y + v->tex.tex_x), mlx);
 		y++;
 	}
 }
@@ -184,14 +149,6 @@ void	drawSlide(int x, t_proj_ray *curr, t_trigger *t, t_p_coords *v, t_mlx *mlx)
 	int i;
 	int y;
 	int y_end;
-	//int d;
-//	double wall_x;
-//	int tex_x;
-	//int tex_y;
-
-	//double floor_x;
-	//double floor_y;
-
 
 	i = S_HEIGHT - 1;
 	y = curr->drawStart;
@@ -200,31 +157,7 @@ void	drawSlide(int x, t_proj_ray *curr, t_trigger *t, t_p_coords *v, t_mlx *mlx)
 	v->tex.end = y_end;
 	tex_calc(t, v);
 	fc_calc(t, v);
-//	fc(x, v, mlx);
-/*
-	if (t->side == 0)
-		wall_x = v->pos.Y + v->d.perpWallDist * v->rayDir.Y;
-	else
-		wall_x = v->pos.X + v->d.perpWallDist * v->rayDir.X;
-	wall_x -= floor((wall_x));
-	tex_x = (int)(wall_x * (double)(64));
-	if (t->side == 0 && v->rayDir.X > 0)
-		tex_x = 64 - tex_x - 1;
-	if (t->side == 1 && v->rayDir.Y	< 0)
-		tex_x = 64 - tex_x - 1;
-*/
-/*	while(i > curr->drawStart)
-	{
-		pxto_win(x, i, 0xA9A9A9, mlx);
-		i--;
-	}
-	i = 0;
-	while (i < curr->drawEnd)
-	{
-		pxto_win(x, i, 0x87ceeb, mlx);
-		i++;
-	}
-*/	while (y != y_end)
+while (y != y_end)
 	{
 		v->tex.d = y * 256 - S_HEIGHT * 128 + v->lineHeight * 128;
 		v->tex.tex_y = ((v->tex.d * 64) / v->lineHeight) / 256;
@@ -232,7 +165,6 @@ void	drawSlide(int x, t_proj_ray *curr, t_trigger *t, t_p_coords *v, t_mlx *mlx)
 		y++;
 	}
 	floor_tex(x, v, mlx);
-	ceiling_tex(x, v, mlx);
 }
 
 void	mapping(t_p_coords *v, int **map, t_proj_ray *curr, t_trigger *t)
