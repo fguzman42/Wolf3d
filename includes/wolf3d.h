@@ -6,7 +6,7 @@
 /*   By: pgobeil- <pgobeil-@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/27 16:47:56 by pgobeil-          #+#    #+#             */
-/*   Updated: 2019/12/04 13:14:27 by pgobeil-         ###   ########.fr       */
+/*   Updated: 2019/12/11 17:39:57 by pgobeil-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,10 @@
 # define S_WIDTH 1000
 # define S_HEIGHT 700
 # define texwidth 64
+# define FORWARD 0
+# define BACKWARD 1
+# define LEFT 2
+# define RIGHT 3
 
 # include <math.h>
 # include <stdio.h>
@@ -54,8 +58,9 @@ typedef struct			s_mlx{
 	int					bpp;
 	int					*colors;
 	int					**map;
-	char				*tex[10];
+	char				**tex;
 	char				*pixs;
+	int					t_index;
 	struct s_p_coords	*v;
 }						t_mlx;
 
@@ -120,18 +125,31 @@ typedef struct			s_p_coords{
 }						t_p_coords;
 
 void				pxto_win(int x, int y, int color, t_mlx *mlx);
-int					**give_map();
-int					*colors(void);
-int					deal_key(int key, t_mlx *mlx);
-
 void				cast_all_rays(t_p_coords *v, int **map, t_mlx *mlx);
 void				pxto_win(int x, int y, int color, t_mlx *mlx);
 void				do_DDA(t_p_coords *v, t_dist *d, t_trigger *t, int **map);
 void				get_direction(t_p_coords *v, t_dist *d);
 void				mapping(t_p_coords *v, int **ma, t_proj_ray *curr, t_trigger *t);
 void				drawSlide(int x, t_proj_ray *curr, t_trigger *t, t_p_coords *v,  t_mlx *mlx);
+void				free_list(t_slide *head);
+void				move_player(t_mlx *mlx, t_p_coords *v, double speed, int mode);
+void				movecam(t_mlx *mlx, int key);
+void				create_2d_array(t_slide *head, int n_elements, t_grid *grid);
+
 int					keys(int key, t_mlx *mlx);
 int					redx(t_mlx *mlx);
 int					release(int key, t_mlx *mlx);
 int					press(int key, t_mlx *mlx);
+int					check_file(int fd, t_grid *grid);
+int					get_spawn(t_p_coords *v, t_grid *grid);
+int					**give_map();
+char				**tex(t_mlx *mlx);
+int					deal_key(int key, t_mlx *mlx);
+
+t_slide				*list_slider(int fd, char *line);
+t_slide				*list_scroller(char *path, char *line, int *ysize);
+t_slide				*node_add(t_slide *anywhere, char *line);
+t_slide				*inter(char *line);
+
+
 #endif

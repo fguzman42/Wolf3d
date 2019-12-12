@@ -6,7 +6,7 @@
 /*   By: pgobeil- <pgobeil-@student.42.us.org>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/22 17:56:36 by pgobeil-          #+#    #+#             */
-/*   Updated: 2019/12/04 11:55:02 by pgobeil-         ###   ########.fr       */
+/*   Updated: 2019/12/11 17:22:51 by pgobeil-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,62 +20,42 @@ void	init(t_mlx *mlx, t_p_coords *v)
 	x = 64;
 	y = 64;
 	v->pos.X = 22;
-	v->pos.Y = 11.5;// 12;  //x and y start position
+	v->pos.Y = 12;// 12;  //x and y start position
 	v->dir.X = -1; 
 	v->dir.Y = 0; //initial direction vector
 	v->plane.X = 0;
 	v->plane.Y = 0.66; //the 2d raycaster version of camera plane
 	v->time = 0; //time of current frame
 	v->oldTime = 0; //time of previous frame
-	
 	mlx->mlx_ptr = mlx_init();
-	mlx->colors = colors();
 	mlx->win_ptr = mlx_new_window(mlx->mlx_ptr, S_WIDTH, S_HEIGHT, "wolf3d");
 	mlx->img_ptr = mlx_new_image(mlx->mlx_ptr, S_WIDTH, S_HEIGHT);
 	mlx->pixs = mlx_get_data_addr(mlx->img_ptr, &mlx->bpp,\
 	&mlx->sline, &mlx->endian);
-	mlx->xpm = mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/wood.xpm", &x, &y);
-	printf("first element of xpm == %d\n", *(int *)mlx->xpm);
+	mlx->tex = tex(mlx);
 }
 
 void	cast_all_rays(t_p_coords *v, int **map, t_mlx *mlx)
 {
 	int			x;
-	int 		color;
 	double		cameraX;
-	// double		rayDirX;
-	// double		rayDirY;
 	t_proj_ray	curSlide;
 	t_trigger	t;
-	int bpp;
-	int sline;
-	int endian;
-	int i;
 
-
-	i = 0;
 	x = 0;
-	mlx->tex[0] = mlx_get_data_addr(mlx->xpm, &bpp, &sline, &endian);
-
 	while (x < S_WIDTH)
 	{
     	cameraX = 2 * x / (double)S_WIDTH - 1;
 		v->rayDir.X = v->dir.X + v->plane.X * cameraX;
 		v->rayDir.Y = v->dir.Y + v->plane.Y * cameraX;
 		mapping(v, map, &curSlide, &t);
-		// printf("%d val \n", map[v->map.x][v->map.y]);
-		color = *((int *)mlx->tex[0]);//mlx->colors[map[v->map.x][v->map.y] - 1];
-		// printf("hereman\n");
-
-		if (t.side == 1)
-			color /= 2;
+		mlx->t_index = mlx->map[v->map.x][v->map.y] - 1;
 		drawSlide(x, &curSlide, &t, v, mlx);
 		x++;
 
 	}
 	mlx_put_image_to_window(mlx->mlx_ptr, mlx->win_ptr, mlx->img_ptr, 0, 0);
 }
-
 
 void	tex_calc(t_trigger *t, t_p_coords *v)
 {
@@ -91,7 +71,6 @@ void	tex_calc(t_trigger *t, t_p_coords *v)
 	if (t->side == 1 && v->rayDir.Y	< 0)
 		v->tex.tex_x = 64 - v->tex.tex_x - 1;	
 }
-
 
 void	floor_tex(int x, t_p_coords *v, t_mlx *mlx)
 {
@@ -113,8 +92,8 @@ void	floor_tex(int x, t_p_coords *v, t_mlx *mlx)
 		v->tex.cfloor_y = v->tex.weight * v->tex.floor_y + (1.0 - v->tex.weight) * v->pos.Y;
 		v->tex.tex_x = (int)(v->tex.cfloor_x * 64) % 64;
 		v->tex.tex_y = (int)(v->tex.cfloor_y * 64) % 64;
-		pxto_win(x, S_HEIGHT - y, *((int *)mlx->tex[0] + 64 * v->tex.tex_y + v->tex.tex_x), mlx);
-		pxto_win(x, y, *((int *)mlx->tex[0] + 64 * v->tex.tex_y + v->tex.tex_x), mlx);
+		pxto_win(x, S_HEIGHT - y, *((int *)mlx->tex[1] + 64 * v->tex.tex_y + v->tex.tex_x), mlx);
+		pxto_win(x, y, *((int *)mlx->tex[2] + 64 * v->tex.tex_y + v->tex.tex_x), mlx);
 		y++;
 	}
 }
@@ -157,11 +136,11 @@ void	drawSlide(int x, t_proj_ray *curr, t_trigger *t, t_p_coords *v, t_mlx *mlx)
 	v->tex.end = y_end;
 	tex_calc(t, v);
 	fc_calc(t, v);
-while (y != y_end)
+	while (y != y_end)
 	{
 		v->tex.d = y * 256 - S_HEIGHT * 128 + v->lineHeight * 128;
 		v->tex.tex_y = ((v->tex.d * 64) / v->lineHeight) / 256;
-		pxto_win(x, y, *((int *)mlx->tex[0] + 64 * v->tex.tex_y + v->tex.tex_x), mlx);
+		pxto_win(x, y, *((int *)mlx->tex[mlx->t_index] + 64 * v->tex.tex_y + v->tex.tex_x), mlx);
 		y++;
 	}
 	floor_tex(x, v, mlx);
@@ -249,81 +228,31 @@ void	do_DDA(t_p_coords *v, t_dist *d, t_trigger *t, int **map)
 			t->hit = 1; 
 	}
 }
-int		main(void)
+int		main(int argc, char **argv)
 {
-	t_mlx	mlx;
-	t_p_coords v;
+	t_mlx		mlx;
+	t_p_coords 	v;
+	t_slide		*head;
+	t_grid		grid;
+	int 		fd;
+	char *line;
 
+	line = NULL;
 	mlx.v = &v;
-	// int **true_map;
 	init(&mlx, &v);
-
-/*	int map[WIDTH][HEIGHT] = {
- {4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,7,7,7,7,7,7,7,7},
-  {4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-  {4,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-  {4,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7},
-  {4,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,7},
-  {4,0,4,0,0,0,0,5,5,5,5,5,5,5,5,5,7,7,0,7,7,7,7,7},
-  {4,0,5,0,0,0,0,5,0,5,0,5,0,5,0,5,7,0,0,0,7,7,7,1},
-  {4,0,6,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-  {4,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,7,1},
-  {4,0,8,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,0,0,0,8},
-  {4,0,0,0,0,0,0,5,0,0,0,0,0,0,0,5,7,0,0,0,7,7,7,1},
-  {4,0,0,0,0,0,0,5,5,5,5,0,5,5,5,5,7,7,7,7,7,7,7,1},
-  {6,6,6,6,6,6,6,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-  {8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4},
-  {6,6,6,6,6,6,0,6,6,6,6,0,6,6,6,6,6,6,6,6,6,6,6,6},
-  {4,4,4,4,4,4,0,4,4,4,6,0,6,2,2,2,2,2,2,2,3,3,3,3},
-  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-  {4,0,0,0,0,0,0,0,0,0,0,0,6,2,0,0,5,0,0,2,0,0,0,2},
-  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-  {4,0,6,0,6,0,0,0,0,4,6,0,0,0,0,0,5,0,0,0,0,0,0,2},
-  {4,0,0,5,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,2,0,2,2},
-  {4,0,6,0,6,0,0,0,0,4,6,0,6,2,0,0,5,0,0,2,0,0,0,2},
-  {4,0,0,0,0,0,0,0,0,4,6,0,6,2,0,0,0,0,0,2,0,0,0,2},
-  {4,4,4,4,4,4,4,4,4,4,1,1,1,2,2,2,2,2,2,3,3,3,3,3}
-};
-*/
-
-
-	int map[WIDTH][HEIGHT] = {
-{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,2,2,2,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,3,0,0,0,3,0,0,0,1},
-{1,0,0,0,0,0,2,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,2,2,0,2,2,0,0,0,0,3,0,3,0,3,0,0,0,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-};
-
-	mlx.map = give_map();
-	for (int x = 0; x < WIDTH; x++)
-		for (int y = 0; y < HEIGHT; y++)
-			mlx.map[x][y] = map[x][y];
-	
+	fd = open(argv[1], O_RDONLY);
+	if (fd < 0 || argc != 2)
+		return (err_ret("Usage : ./fdf <path to map>"));
+	if (check_file(fd, &grid) == 1)
+		return (err_ret("shitty map man"));
+	init(&mlx, &v);
+	head = list_scroller(argv[1], line, &grid.ysize);
+	create_2d_array(head, grid.ysize, &grid);
+	if (get_spawn(&v, &grid) == 0)
+		err_ret("no spawn!");
+	mlx.map = grid.map;
 	cast_all_rays(&v, mlx.map, &mlx);
-
-	// mlx_key_hook(mlx.win_ptr, deal_key, (void *)&mlx);
-	// mlx_mouse_hook(mlx.win_ptr, do_mouse, (void *)&mlx);
-	// mlx_hook(mlx.win_ptr, 6, 0, do_jul_mov, &mlx);
+	system("afplay -v 2 sounds/mario.mp3 &");
 	mlx_key_hook(mlx.win_ptr, keys, &mlx.mlx_ptr);
 	mlx_hook(mlx.win_ptr, 17, 0, redx, &mlx.mlx_ptr);
 	mlx_hook(mlx.win_ptr, 2, 0, press, &mlx.mlx_ptr);

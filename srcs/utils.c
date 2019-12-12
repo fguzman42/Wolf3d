@@ -12,28 +12,40 @@
 
 #include "../includes/wolf3d.h"
 
-int		*colors(void)
+char		**tex(t_mlx *mlx)
 {
-	int *colors;
+	int x;
+	int y;
 
-	colors = (int *)malloc(sizeof(int) * 16);
-	colors[0] = 0xFF0000;
-	colors[1] = 0x00FF00;
-	colors[2] = 0x0000FF;
-	colors[3] = 0x00FF0B;
-	colors[4] = 0xFFFF00;
-	colors[5] = 0x0C2C8A;
-	colors[6] = 0x1852B1;
-	colors[7] = 0x397DD1;
-	colors[8] = 0x86B5E5;
-	colors[9] = 0xD3ECF8;
-	colors[10] = 0xF1E9BF;
-	colors[11] = 0xF8C95F;
-	colors[12] = 0xFFAA00;
-	colors[13] = 0xCC8000;
-	colors[14] = 0x995700;
-	colors[15] = 0x6A3403;
-	return (colors);
+	x = 64;
+	y = 64;
+	mlx->tex = (char **)malloc(sizeof(char *) * 10);
+	mlx->tex[0] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/link.xpm", &x, &y)), &mlx->bpp,\
+	&mlx->sline, &mlx->endian);	
+	mlx->tex[1] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/wood.xpm", &x, &y)), &mlx->bpp,\
+	&mlx->sline, &mlx->endian);
+	mlx->tex[2] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/bluestone.xpm", &x, &y)), &mlx->bpp,\
+	&mlx->sline, &mlx->endian);
+	mlx->tex[3] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/alex.xpm", &x, &y)), &mlx->bpp,\
+	&mlx->sline, &mlx->endian);
+	mlx->tex[4] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/pepe.xpm", &x, &y)), &mlx->bpp,\
+	&mlx->sline, &mlx->endian);
+	mlx->tex[5] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/skulls.xpm", &x, &y)), &mlx->bpp,\
+	&mlx->sline, &mlx->endian);
+	mlx->tex[6] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/barrel.xpm", &x, &y)), &mlx->bpp,\
+	&mlx->sline, &mlx->endian);
+	mlx->tex[7] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/skulls.xpm", &x, &y)), &mlx->bpp,\
+	&mlx->sline, &mlx->endian);
+	mlx->tex[8] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/barrel.xpm", &x, &y)), &mlx->bpp,\
+	&mlx->sline, &mlx->endian);
+/*	tex[9] = 0xD3ECF8;
+	tex[10] = 0xF1E9BF;
+	tex[11] = 0xF8C95F;
+	tex[12] = 0xFFAA00;
+	tex[13] = 0xCC8000;
+	tex[14] = 0x995700;
+	tex[15] = 0x6A3403;*/
+	return (mlx->tex);
 }
 
 
