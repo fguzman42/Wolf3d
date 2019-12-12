@@ -177,7 +177,7 @@ int		check_file(int fd, t_grid *grid)
 	}
 	close(fd);
 	grid->xsize = len;
-	if (len == 0)
+	if (i == 0)
 		return(1);
 	return (0);
 }

@@ -61,6 +61,13 @@ void	fblr(t_mlx *mlx, t_p_coords *v, int **map, int key)
 	0 >= (map[(int)(v->pos.X)][(int)(v->pos.Y - v->dir.Y * speed)]) &&
 	key == 125)
 		move_player(mlx, mlx->v, speed, BACKWARD);
+	if (((map[(int)(v->pos.X + v->dir.X * speed)][(int)(v->pos.Y)]) == 5 ||
+	(map[(int)(v->pos.X)][(int)(v->pos.Y + v->dir.Y * speed)]) == 5) &&
+	key == 126)
+	{
+		system("pkill afplay");
+		system("afplay -v 2 sounds/goal.mp3 &");
+	}
 }
 
 int		redx(t_mlx *mlx)

@@ -156,22 +156,17 @@ void	mapping(t_p_coords *v, int **map, t_proj_ray *curr, t_trigger *t)
 	v->map.y = (int)v->pos.Y;
 	v->d.deltaDist.X = ft_abs_val(1.0 / v->rayDir.X);
 	v->d.deltaDist.Y = ft_abs_val(1.0 / v->rayDir.Y);
-	// printf("ddistx %f, ddisty %f\n", d.deltaDist.X, d.deltaDist.Y);
 	t->hit = 0;
 	get_direction(v, &v->d);
 
-	// do DDA
 	do_DDA(v, &v->d, t, map);
-	// get the perpendicular distance of the wall hit, use side to determinate w
-	// wether x dist or y dist
 	if (t->side == 0)
 		v->d.perpWallDist = (v->map.x - v->pos.X + (1 - v->step.x) / 2) / v->rayDir.X;
 	else
 		v->d.perpWallDist = (v->map.y - v->pos.Y + (1 - v->step.y) / 2) / v->rayDir.Y;
-	// height of the wall depends on distance and pixel height
-	//  we calculate it here
+	if (v->d.perpWallDist == 0)
+		v->d.perpWallDist = 1;
 	v->lineHeight = (int)(S_HEIGHT * 1.5 / v->d.perpWallDist);
-	// we make a pixel range we have to draw in our stripe
 	curr->drawStart = -v->lineHeight / 2 + S_HEIGHT / 2;
 	if (curr->drawStart < 0)
 		curr->drawStart = 0;
@@ -239,7 +234,7 @@ int		main(int argc, char **argv)
 
 	line = NULL;
 	mlx.v = &v;
-	init(&mlx, &v);
+	// init(&mlx, &v);
 	fd = open(argv[1], O_RDONLY);
 	if (fd < 0 || argc != 2)
 		return (err_ret("Usage : ./fdf <path to map>"));

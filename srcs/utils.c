@@ -20,15 +20,15 @@ char		**tex(t_mlx *mlx)
 	x = 64;
 	y = 64;
 	mlx->tex = (char **)malloc(sizeof(char *) * 10);
-	mlx->tex[0] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/link.xpm", &x, &y)), &mlx->bpp,\
+	mlx->tex[0] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/mariowall.XPM", &x, &y)), &mlx->bpp,\
 	&mlx->sline, &mlx->endian);	
-	mlx->tex[1] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/wood.xpm", &x, &y)), &mlx->bpp,\
+	mlx->tex[1] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/marioceiling.xpm", &x, &y)), &mlx->bpp,\
 	&mlx->sline, &mlx->endian);
-	mlx->tex[2] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/bluestone.xpm", &x, &y)), &mlx->bpp,\
+	mlx->tex[2] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/marioground.xpm", &x, &y)), &mlx->bpp,\
 	&mlx->sline, &mlx->endian);
-	mlx->tex[3] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/alex.xpm", &x, &y)), &mlx->bpp,\
+	mlx->tex[3] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/mariohill.XPM", &x, &y)), &mlx->bpp,\
 	&mlx->sline, &mlx->endian);
-	mlx->tex[4] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/pepe.xpm", &x, &y)), &mlx->bpp,\
+	mlx->tex[4] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/goal.XPM", &x, &y)), &mlx->bpp,\
 	&mlx->sline, &mlx->endian);
 	mlx->tex[5] = mlx_get_data_addr((mlx_xpm_file_to_image(mlx->mlx_ptr, "./pics/skulls.xpm", &x, &y)), &mlx->bpp,\
 	&mlx->sline, &mlx->endian);
