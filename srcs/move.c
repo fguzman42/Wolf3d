@@ -12,31 +12,31 @@
 
 #include "../includes/wolf3d.h"
 
-void	movecam(t_mlx *mlx, int key)
+void	movecam(t_mlx *mlx, int key, t_p_coords *v)
 {
 	double olddirx;
 	double oldplanex;
 	double speed;
 
 	speed = 0.1;
-	olddirx = mlx->v->dir.X;
-	oldplanex = mlx->v->plane.X;
+	olddirx = v->dir.x;
+	oldplanex = v->plane.x;
 	if (key == 2)
 	{
 		speed = -0.05;
-		mlx->v->dir.X = mlx->v->dir.X * cos(speed) - mlx->v->dir.Y * sin(speed);
-		mlx->v->dir.Y = olddirx * sin(speed) + mlx->v->dir.Y * cos(speed);
-		mlx->v->plane.X = mlx->v->plane.X * cos(speed) - mlx->v->plane.Y * sin(speed);
-		mlx->v->plane.Y = oldplanex * sin(speed) + mlx->v->plane.Y * cos(speed);
-		cast_all_rays(mlx->v, mlx->map, mlx);
+		v->dir.x = v->dir.x * cos(speed) - v->dir.y * sin(speed);
+		v->dir.y = olddirx * sin(speed) + v->dir.y * cos(speed);
+		v->plane.x = v->plane.x * cos(speed) - v->plane.y * sin(speed);
+		v->plane.y = oldplanex * sin(speed) + v->plane.y * cos(speed);
+		cast_all_rays(v, mlx->map, mlx);
 	}
 	if (key == 0)
 	{
-		mlx->v->dir.X = mlx->v->dir.X * cos(speed) - mlx->v->dir.Y * sin(speed);
-		mlx->v->dir.Y = olddirx * sin(speed) + mlx->v->dir.Y * cos(speed);
-		mlx->v->plane.X = mlx->v->plane.X * cos(speed) - mlx->v->plane.Y * sin(speed);
-		mlx->v->plane.Y = oldplanex * sin(speed) + mlx->v->plane.Y * cos(speed);
-		cast_all_rays(mlx->v, mlx->map, mlx);
+		v->dir.x = v->dir.x * cos(speed) - v->dir.y * sin(speed);
+		v->dir.y = olddirx * sin(speed) + v->dir.y * cos(speed);
+		v->plane.x = v->plane.x * cos(speed) - v->plane.y * sin(speed);
+		v->plane.y = oldplanex * sin(speed) + v->plane.y * cos(speed);
+		cast_all_rays(v, mlx->map, mlx);
 	}
 }
 
@@ -44,26 +44,26 @@ void	move_player(t_mlx *mlx, t_p_coords *v, double speed, int mode)
 {
 	if (mode == FORWARD)
 	{
-		v->pos.X += v->dir.X * speed;
-		v->pos.Y += v->dir.Y * speed;
+		v->pos.x += v->dir.x * speed;
+		v->pos.y += v->dir.y * speed;
 		cast_all_rays(v, mlx->map, mlx);
 	}
 	if (mode == BACKWARD)
 	{
-		v->pos.X -= v->dir.X * speed;
-		v->pos.Y -= v->dir.Y * speed;
+		v->pos.x -= v->dir.x * speed;
+		v->pos.y -= v->dir.y * speed;
 		cast_all_rays(v, mlx->map, mlx);
 	}
 	if (mode == LEFT)
 	{
-		v->pos.X -= v->plane.X * speed;
-		v->pos.Y -= v->plane.Y * speed;
+		v->pos.x -= v->plane.x * speed;
+		v->pos.y -= v->plane.y * speed;
 		cast_all_rays(v, mlx->map, mlx);
 	}
 	if (mode == RIGHT)
 	{
-		v->pos.X += v->plane.X * speed;
-		v->pos.Y += v->plane.Y * speed;
+		v->pos.x += v->plane.x * speed;
+		v->pos.y += v->plane.y * speed;
 		cast_all_rays(v, mlx->map, mlx);
 	}
 }

@@ -6,13 +6,13 @@
 #    By: pgobeil- <pgobeil-@student.42.us.org>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/05 21:26:43 by pgobeil-          #+#    #+#              #
-#    Updated: 2019/12/11 00:07:05 by pgobeil-         ###   ########.fr        #
+#    Updated: 2019/12/13 17:16:25 by pgobeil-         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME := wolf3d
 
-SRC := main.c utils.c keys.c parse_map.c
+SRC := main.c utils.c keys.c parse_map.c move.c build_grid.c
 
 SRCDIR := ./srcs
 
